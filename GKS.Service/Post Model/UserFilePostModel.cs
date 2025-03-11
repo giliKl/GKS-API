@@ -5,16 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GKS.Core.DTOS
+namespace GKS.Service.Post_Model
 {
-    public class UserDto
+    public class UserFilePostModel
     {
         public int Id { get; set; }
+        public int OwnerId { get; set; }
         public string Name { get; set; }
-        public string Email { get; set; }
-        public string Password { get; set; }
-        public ICollection<Role> Roles { get; set; }
-        public ICollection<UserFile> Files { get; set; }
+        public string EncryptedLink { get; set; }
+        public string FilePassword { get; set; }
         public bool IsActive { get; set; }
 
     }
