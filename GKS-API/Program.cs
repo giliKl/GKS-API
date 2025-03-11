@@ -30,7 +30,8 @@ builder.Services.AddScoped<IDataContext, DataContext>();
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    options.UseSqlServer(@"Server=(localdb)\\MSSQLLocalDB;Database=GKS_db;Integrated Security=true");
+    var conection = "Host=localhost;Port=5432;Database=GKS;Username=postgres;Password=gK215114760";
+    options.UseNpgsql(conection);
 });
 
 
@@ -94,6 +95,14 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["JWT:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
     };
+});
+
+//Provisioning role permissions
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("EditorOrAdmin", policy => policy.RequireRole("Editor", "Admin"));
+    options.AddPolicy("ViewerOnly", policy => policy.RequireRole("Viewer"));
 });
 
 var app = builder.Build();

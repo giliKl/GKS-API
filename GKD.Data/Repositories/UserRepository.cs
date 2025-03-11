@@ -91,7 +91,7 @@ namespace GKD.Data.Repositories
                 var user = await _dataContext._Users.FirstOrDefaultAsync(user => user.Id == id);
                 if (user == null)
                     return false;
-                user.Role = role;
+                user.Roles.Add(role);
                 await _dataContext.SaveChangesAsync();
                 return true;
             }
@@ -151,7 +151,7 @@ namespace GKD.Data.Repositories
                 {
                     return false;
                 }
-                _dataContext._Users.Remove(user);
+                user.IsActive = false;
                 await _dataContext.SaveChangesAsync();
                 return true;
             }

@@ -17,9 +17,26 @@ namespace GKD.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=GKS;Username=postgres;Password=gK215114760");
+            }
             optionsBuilder.LogTo(m => Console.WriteLine(m));
             base.OnConfiguring(optionsBuilder);
+         
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<UserFile>()
+                .HasOne(uf => uf.User)
+                .WithMany(u => u.Files)
+                .HasForeignKey(uf => uf.OwnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            base.OnModelCreating(modelBuilder);
+        }
+
         public async Task<int> SaveChangesAsync()
         {
             return await base.SaveChangesAsync();

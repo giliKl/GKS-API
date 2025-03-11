@@ -23,6 +23,7 @@ namespace GKS_API.Controllers
 
         // GET: api/<UserController>
         [HttpGet]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsersAsync()
         {
             try
@@ -124,6 +125,7 @@ namespace GKS_API.Controllers
 
         //DELETE api/<UserController>/5
         [HttpDelete("{id}")]
+        [Authorize(Policy = "EditorOrAdmin")]
         public async Task<ActionResult> DeleteUserAsync(int id)
         {
             try
