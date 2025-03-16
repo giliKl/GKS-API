@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace GKS.Service.Post_Model
 {
-    public class LoginModel
+    public class DecryptionPostModel
     {
-        public string Email { get; set; }
+        public string EncryptedLink { get; set; }
         public string Password { get; set; }
-        public string[] Roles { get; set; }
     }
 }

@@ -5,11 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GKS.Core.Entities
+namespace GKS.Core.DTOS
 {
-    public class Role
+    public class RoleDto
     {
-        [Key]
         public int Id { get; set; }
 
         [Required]
@@ -17,14 +16,5 @@ namespace GKS.Core.Entities
         public string RoleName { get; set; }
 
         public string Description { get; set; }
-
-        [Required]
-        public DateOnly CreatedAt { get; set; }
-
-        public DateOnly UpdatedAt { get; set; }
-
-        public ICollection<User>? Users { get; set; } = new List<User>();
-        public ICollection<Permission>? Permissions { get; set; } = new List<Permission>();
-
     }
 }

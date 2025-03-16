@@ -12,7 +12,6 @@ namespace GKS.Service.Post_Model
         public int Id { get; set; }
         public int OwnerId { get; set; }
         public string Name { get; set; }
-        public string EncryptedLink { get; set; }
         public string FilePassword { get; set; }
         public bool IsActive { get; set; }
 

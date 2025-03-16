@@ -44,7 +44,15 @@ namespace GKS.Service.Services
         //Put
         public async Task<UserDto> AddUserAsync(UserDto user)
         {
-            var res = await _userRepository.AddUserAsync(_mapper.Map<User>(user));//המרת המשתנה מ userdto  to user
+            var existingUser = await _userRepository.GetUserByEmailAsync(user.Email);
+
+            if (existingUser != null)
+            {
+                throw new Exception("Email already exists");
+            }
+
+            var res = await _userRepository.AddUserAsync(_mapper.Map<User>(user));
+
             return _mapper.Map<UserDto>(res);
         }
 

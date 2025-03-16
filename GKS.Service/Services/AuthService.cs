@@ -46,6 +46,58 @@ namespace GKS.Service.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+
+        // פונקציה לפירוק טוקן
+        public ClaimsPrincipal ValidateToken(string token)
+        {
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]); // המפתח לצורך אימות
+
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _configuration["Jwt:Issuer"],
+                    ValidAudience = _configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+
+                // אם הטוקן תקין, מחזירים את המידע מתוך הטוקן (claims)
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+
+                // אם הטוקן לא תקין, הוספת טיפול בשגיאות (לא הכרחי, תלוי בצורך שלך)
+                if (!(validatedToken is JwtSecurityToken jwtToken) || !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    throw new SecurityTokenException("Invalid token");
+                }
+
+                return principal;
+            }
+            catch (Exception ex)
+            {
+                // אם הטוקן לא תקין או שקרה משהו, החזרת null או טיפול בשגיאה לפי הצורך
+                return null;
+            }
+        }
+
+        // לדוגמה: פונקציה לשליפת המידע מתוך הטוקן (כגון שם המשתמש)
+        public string GetUsernameFromToken(string token)
+        {
+            var principal = ValidateToken(token);
+            return principal?.Identity?.Name;
+        }
+
+        // לדוגמה: פונקציה לשליפת תפקידים מתוך הטוקן
+        public IEnumerable<string> GetRolesFromToken(string token)
+        {
+            var principal = ValidateToken(token);
+            return principal?.FindAll(ClaimTypes.Role).Select(c => c.Value);
+        }
     }
 }
 

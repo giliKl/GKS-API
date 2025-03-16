@@ -1,3 +1,4 @@
+using DotNetEnv;
 using GKD.Data;
 using GKD.Data.Repositories;
 using GKS.Core;
@@ -12,16 +13,24 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
 
+Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFileService, UserFileService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRoleService,RoleService>();
+builder.Services.AddScoped<IPermissionService,PermissionService>();
+
 
 // Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserFileRepository, UserFileRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
 
 
 
@@ -34,15 +43,32 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(conection);
 });
 
+builder.Services.AddScoped<FileStorageService>();
 
-//builder.Services.AddSingleton<DataContext>();
-//
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()  // מאפשר לכל מקור לגשת
+               .AllowAnyMethod()  // מאפשר כל שיטה (GET, POST וכו')
+               .AllowAnyHeader(); // מאפשר כל כותרת
+    });
+});
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.WriteIndented = true;
 });
+
+
+Console.WriteLine($"AWS_REGION: {Environment.GetEnvironmentVariable("AWS_REGION")}");
+Console.WriteLine($"AWS_ACCESS_KEY_ID: {Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID")}");
+Console.WriteLine($"AWS_SECRET_ACCESS_KEY: {Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY")}");
+Console.WriteLine($"AWS_BUCKET_NAME: {Environment.GetEnvironmentVariable("AWS_BUCKET_NAME")}");
+
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
@@ -114,6 +140,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 

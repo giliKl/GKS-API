@@ -43,20 +43,20 @@ namespace GKS_API.Controllers
             if(res.IsActive==false)
                 return Unauthorized();
 
-            var token = _authService.GenerateJwtToken(res.Name, res.Roles.Select(role => role.RoleName).ToArray());
+            var token = _authService.GenerateJwtToken(res.Name, loginModel.Roles);
                 return Ok(new { Token = token, user = res });
             
         }
 
 
         [HttpPost("register")]
-        public async Task<ActionResult> Register([FromBody] UserPostModel user)
+        public async Task<ActionResult> Register([FromBody] RegisterPostModel user)
         {
             var res = await _userService.AddUserAsync(_mapper.Map<UserDto>(user));
             if (res == null)
                 return BadRequest();
             
-                var token = _authService.GenerateJwtToken(res.Name, res.Roles.Select(role => role.RoleName).ToArray());
+                var token = _authService.GenerateJwtToken(res.Name, user.Roles);
                 return Ok(new { Token = token, user = res });
           
         }

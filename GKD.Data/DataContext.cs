@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 
 namespace GKD.Data
 {
-    public class DataContext : DbContext,IDataContext
+    public class DataContext : DbContext, IDataContext
     {
         public DbSet<User> _Users { get; set; }
         public DbSet<UserFile> _Files { get; set; }
-
+        public DbSet<Role> _Roles { get; set; }
+        public DbSet<Permission> _Permissions { get; set; }
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -23,7 +24,7 @@ namespace GKD.Data
             }
             optionsBuilder.LogTo(m => Console.WriteLine(m));
             base.OnConfiguring(optionsBuilder);
-         
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -33,6 +34,10 @@ namespace GKD.Data
                 .WithMany(u => u.Files)
                 .HasForeignKey(uf => uf.OwnerId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<User>()
+            .HasIndex(u => u.Email)
+            .IsUnique();
 
             base.OnModelCreating(modelBuilder);
         }

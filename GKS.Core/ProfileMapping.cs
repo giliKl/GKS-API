@@ -15,6 +15,8 @@ namespace GKS.Core
         {
             CreateMap<User, UserDto>().ReverseMap();
             CreateMap<UserFile, UserFileDto>().ReverseMap();
+            CreateMap<Permission, PermissionDto>().ReverseMap();
+            CreateMap<Role, RoleDto>().ReverseMap();
         }
     }
 }

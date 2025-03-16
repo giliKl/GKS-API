@@ -13,9 +13,8 @@ namespace GKS.Core.DTOS
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public ICollection<Role> Roles { get; set; }
-        public ICollection<UserFile> Files { get; set; }
-        public bool IsActive { get; set; }
+        public List<int> FilesId { get; set; }
+        public bool IsActive { get; set; } 
 
     }
 }

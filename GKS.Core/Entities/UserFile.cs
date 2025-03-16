@@ -27,9 +27,10 @@ namespace GKS.Core.Entities
         [Required]
         public string FilePassword { get; set; }
         [Required]
-        
+        public string FileType { get; set; }
+        [Required]
         public DateOnly CreatedAt { get; set; } = DateOnly.FromDateTime(DateTime.Now);
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
 
     }
