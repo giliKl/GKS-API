@@ -22,13 +22,7 @@ namespace GKS.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<PermissionDto> AddPermissionAsync(PermissionDto permission)
-        {
-            var permissionEntity = _mapper.Map<Permission>(permission);
-            var addedPermission = await _permissionRepository.AddPermissionAsync(permissionEntity);
-            return _mapper.Map<PermissionDto>(addedPermission);
-        }
-
+        //Get
         public async Task<PermissionDto> GetPermissionByIdAsync(int id)
         {
             return _mapper.Map<PermissionDto>(await _permissionRepository.GetPermissionByIdAsync(id));
@@ -45,16 +39,27 @@ namespace GKS.Service.Services
             return _mapper.Map<List<PermissionDto>>(permissions);
         }
 
-        public async Task<bool> RemovePermissionAsync(int id)
+        //Post
+        public async Task<PermissionDto> AddPermissionAsync(PermissionDto permission)
         {
-            return await _permissionRepository.RemovePermissionAsync(id);
+            var permissionEntity = _mapper.Map<Permission>(permission);
+            var addedPermission = await _permissionRepository.AddPermissionAsync(permissionEntity);
+            return _mapper.Map<PermissionDto>(addedPermission);
         }
 
+        //Put
         public async Task<PermissionDto> UpdatePermissionAsync(int id, PermissionDto permission)
         {
             var permissionEntity = _mapper.Map<Permission>(permission);
             var updatedPermission = await _permissionRepository.UpdatePermissionAsync(id, permissionEntity);
             return _mapper.Map<PermissionDto>(updatedPermission);
         }
+
+        //Delete
+        public async Task<bool> RemovePermissionAsync(int id)
+        {
+            return await _permissionRepository.RemovePermissionAsync(id);
+        }
+
     }
 }

@@ -15,11 +15,13 @@ namespace GKS.Core.IRepositories
         public Task<User> GetUserByIdAsync(int id);
         public Task<User> GetUserByEmailAsync(string email);
 
-        //Put
-        public Task<User> AddUserAsync(User user);
-
         //Post
+        public Task<User> AddUserAsync(User user);
         public Task<User> LogInAsync(string email, string password);
+
+
+        //Put
+        public Task<bool> EnableUserAsync(int id);
         public Task<bool> UpdatePasswordAsync(int id, string password);
         public Task<bool> UpDateNameAsync(int id, string name);
         public Task<bool> UpdateRoleAsync(int id, Role role);

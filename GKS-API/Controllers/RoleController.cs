@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace GKS_API.Controllers
 {
@@ -20,25 +19,28 @@ namespace GKS_API.Controllers
         {
             _roleService = roleService;
         }
+
+        //Get
         [HttpGet]
         public async Task<ActionResult> GetRolesAsync()
         {
             return Ok(await _roleService.GetRolesAsync());
         }
 
-        // GET: api/<RoleController>
         [HttpGet("{roleName}")]
         public async Task<ActionResult> GetRoleByNameAsync(string roleName)
         {
             return Ok(await _roleService.GetRoleByNameAsync(roleName));
         }
 
-        [HttpGet("{roleName}/Ispermissin")]
-        public async Task<ActionResult> GetRoleHasPermissinAsync(string roleName, [FromQuery] string permission)
+        [HttpGet("{roleName}/Ispermission")]
+        public async Task<ActionResult> GetRoleHasPermissoinAsync(string roleName, [FromQuery] string permission)
         {
-            return Ok(await _roleService.IsRoleHasPermissinAsync(roleName, permission));
+            return Ok(await _roleService.IsRoleHasPermissionAsync(roleName, permission));
         }
 
+
+        //Post
         [HttpPost]
         public async Task<ActionResult> AddRoleAsync([FromBody] RoleDto role)
         {
@@ -51,11 +53,15 @@ namespace GKS_API.Controllers
             return Ok(await _roleService.AddPermissionForRoleAsync(roleName, permission));
         }
 
+
+        //Put
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateRoleAsync(int id, [FromBody] RoleDto role)
         {
             return Ok(await _roleService.UpdateRoleAsync(id, role));
         }
+
+        //Delete
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteRoleAsync(int id)
         {

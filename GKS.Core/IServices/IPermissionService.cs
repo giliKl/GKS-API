@@ -9,12 +9,18 @@ namespace GKS.Core.IServices
 {
     public interface IPermissionService
     {
-        public Task<PermissionDto> AddPermissionAsync(PermissionDto permission);
+        //Get
         public Task<List<PermissionDto>> GetPermissionsAsync();
         public Task<PermissionDto> GetPermissionByIdAsync(int id);
         public Task<PermissionDto> GetPermissionByNameAsync(string name);
 
-        public Task<bool> RemovePermissionAsync(int id);
+        //Post
+        public Task<PermissionDto> AddPermissionAsync(PermissionDto permission);
+
+        //Put
         public Task<PermissionDto> UpdatePermissionAsync(int id, PermissionDto permission);
+
+        //Delete
+        public Task<bool> RemovePermissionAsync(int id);
     }
 }

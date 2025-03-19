@@ -18,12 +18,12 @@ namespace GKS.Core.IServices
         public Task<UserFileDto> GetUserFileByIdAsync(int id);
         public Task<IEnumerable<UserFileDto>> GetUserFilesByUserIdAsync(int userId);
         public Task<bool> IsFileNameExist(int id, string name);
-        // PUT
-        public Task<string> UploadFileAsync(IFormFile file, string fileName, string password, int userId);
 
-        // POST
+        // Post
+        public Task<string> UploadFileAsync(IFormFile file, string fileName, string password, int userId);
         public Task<FileContentResult> DecryptFileAsync(string encryptedLink, string password);
 
+        // PUT
         public Task<bool> UpdateFileNameAsync(int fileId, string newFileName);
 
         // DELETE

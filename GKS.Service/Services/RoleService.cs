@@ -25,6 +25,8 @@ namespace GKS.Service.Services
             _mapper = mapper;
             _permissionRepository = permissionRepository;
         }
+
+        //Get
         public async Task<IEnumerable<RoleDto>> GetRolesAsync()
         {
             var roles = await _roleRepository.GetRolesAsync();
@@ -37,10 +39,12 @@ namespace GKS.Service.Services
             return _mapper.Map<RoleDto>(role);
         }
 
-        public async Task<bool> IsRoleHasPermissinAsync(string roleName, string permission)
+        public async Task<bool> IsRoleHasPermissionAsync(string roleName, string permission)
         {
-            return await _roleRepository.IsRoleHasPermissinAsync(roleName, permission);
+            return await _roleRepository.IsRoleHasPermissionAsync(roleName, permission);
         }
+
+        //Post
 
         public async Task<bool> AddPermissionForRoleAsync(string roleName, string permission)
         {
@@ -62,10 +66,14 @@ namespace GKS.Service.Services
         {
             return await _roleRepository.AddRoleAsync(_mapper.Map<Role>(role));
         }
+
+        //Put
         public async Task<bool> UpdateRoleAsync(int id, RoleDto role)
         {
             return await _roleRepository.UpdateRoleAsync(id, _mapper.Map<Role>(role));
         }
+
+        //Delete
         public async Task<bool> DeleteRoleAsync(int id)
         {
             return await _roleRepository.DeleteRoleAsync(id);

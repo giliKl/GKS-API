@@ -5,8 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace GKS_API.Controllers
 {
     [Route("api/[controller]")]
@@ -21,7 +19,7 @@ namespace GKS_API.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/<UserController>
+        // GET
         [HttpGet]
         //[Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsersAsync()
@@ -42,7 +40,6 @@ namespace GKS_API.Controllers
             }
         }
 
-        // GET api/<UserController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDto>> GetUserByIdAsync(int id)
         {
@@ -81,11 +78,26 @@ namespace GKS_API.Controllers
             }
         }
 
-    
 
-       
+        //PUT 
+        [HttpPut("{id}/enableuser")]
+        public async Task<ActionResult> EnableUserAsync(int id)
+        {
+            try
+            {
+                var enabled = await _userService.EnableUserAsync(id);
+                if (!enabled)
+                {
+                    return NotFound("User not found.");
+                }
+                return NoContent(); // Success with no content to return
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
-        //PUT api/<UserController>/5
         [HttpPut("{id}/name")]
         public async Task<ActionResult> UpDateNameAsync(int id, [FromBody] string name)
         {
@@ -121,6 +133,7 @@ namespace GKS_API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
 
         //DELETE api/<UserController>/5

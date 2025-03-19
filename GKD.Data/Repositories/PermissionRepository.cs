@@ -18,21 +18,7 @@ namespace GKD.Data.Repositories
             _dataContext = dataContext;
         }
 
-        public async Task<Permission> AddPermissionAsync(Permission permission)
-        {
-            try
-            {
-                await _dataContext._Permissions.AddAsync(permission);
-                await _dataContext.SaveChangesAsync();
-                return permission;
-            }
-            catch (Exception)
-            {
-
-                return null;
-            }
-        }
-
+        //Get
         public async Task<Permission> GetPermissionByIdAsync(int id)
         {
             try
@@ -58,6 +44,45 @@ namespace GKD.Data.Repositories
             return await _dataContext._Permissions.ToListAsync();
         }
 
+
+        //Post
+        public async Task<Permission> AddPermissionAsync(Permission permission)
+        {
+            try
+            {
+                await _dataContext._Permissions.AddAsync(permission);
+                await _dataContext.SaveChangesAsync();
+                return permission;
+            }
+            catch (Exception)
+            {
+
+                return null;
+            }
+        }
+
+        //Put
+        public async Task<Permission> UpdatePermissionAsync(int id, Permission permission)
+        {
+            try
+            {
+                var res = await _dataContext._Permissions.FirstOrDefaultAsync(p => p.Id == id);
+                if (res != null)
+                {
+                    res.PermissionName = permission.PermissionName ?? res.PermissionName;
+                    res.Description = permission.Description ?? res.Description;
+                    await _dataContext.SaveChangesAsync();
+                }
+                return res;
+            }
+            catch (Exception)
+            {
+
+                return null;
+            }
+        }
+
+        //Delete
         public async Task<bool> RemovePermissionAsync(int id)
         {
             try
@@ -78,24 +103,5 @@ namespace GKD.Data.Repositories
             }
         }
 
-        public async Task<Permission> UpdatePermissionAsync(int id, Permission permission)
-        {
-            try
-            {
-                var res = await _dataContext._Permissions.FirstOrDefaultAsync(p => p.Id == id);
-                if (res != null)
-                {
-                    res.PermissionName = permission.PermissionName ?? res.PermissionName;
-                    res.Description = permission.Description ?? res.Description;
-                    await _dataContext.SaveChangesAsync();
-                }
-                return res;
-            }
-            catch (Exception)
-            {
-
-                return null;
-            }
-        }
     }
 }

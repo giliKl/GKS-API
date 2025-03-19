@@ -31,6 +31,7 @@ namespace GKS.Service.Services
             _encryptionKey = configuration["ENCRYPTION_KEY"];
             _bucketName = configuration["AWS_BUCKET_NAME"];
         }
+
         public  async Task<string> UploadFileAsync(IFormFile file, string fileName, byte[] encryptedData)
         {
             try
@@ -52,6 +53,7 @@ namespace GKS.Service.Services
                 return null;
             }
         }
+
         public async Task<bool> DeleteFileAsync(string fileKey)
         {
             try

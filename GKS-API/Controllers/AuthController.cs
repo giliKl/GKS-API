@@ -1,16 +1,9 @@
 ﻿using AutoMapper;
-using GKS.Core.DTOS;
-using GKS.Core.Entities;
 using GKS.Core.IServices;
 using GKS.Service;
 using GKS.Service.Post_Model;
-using GKS.Service.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+
 
 namespace GKS_API.Controllers
 {
@@ -22,13 +15,13 @@ namespace GKS_API.Controllers
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
         private readonly IMapper _mapper;
-        public AuthController(IConfiguration configuration, IUserService userService, IMapper mapper, IAuthService authService)
+        public AuthController(IConfiguration configuration, IUserService userService, IAuthService authService)
         {
             _configuration = configuration;
             _userService = userService;
             _authService = authService;
-            _mapper = mapper;
         }
+
 
         [HttpPost]
         public async Task<ActionResult> Login([FromBody] LoginModel loginModel)
@@ -52,7 +45,7 @@ namespace GKS_API.Controllers
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody] RegisterPostModel user)
         {
-            var res = await _userService.AddUserAsync(_mapper.Map<UserDto>(user));
+            var res = await _userService.AddUserAsync(user.User, user.Roles);
             if (res == null)
                 return BadRequest();
             

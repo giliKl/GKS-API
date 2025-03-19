@@ -15,14 +15,15 @@ namespace GKS_API.Controllers
         {
             _permissionService = permissionService;
         }
-        // GET: api/<PermissionController>
+
+
+        // GET
         [HttpGet]
         public async Task<ActionResult> GetAllPermissin()
         {
             return Ok(await _permissionService.GetPermissionsAsync());
         }
 
-        // GET api/<PermissionController>/5
         [HttpGet("{id}")]
         public async Task<ActionResult> Get(int id)
         {
@@ -39,7 +40,8 @@ namespace GKS_API.Controllers
             return Ok(res);
         }
 
-        // POST api/<PermissionController>
+
+        // POST 
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] PermissionDto permission)
         {
@@ -48,7 +50,8 @@ namespace GKS_API.Controllers
             return Ok(res);
         }
 
-        // PUT api/<PermissionController>/5
+
+        // PUT 
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] PermissionDto permission)
         {
@@ -57,7 +60,8 @@ namespace GKS_API.Controllers
             return Ok(res);
         }
 
-        // DELETE api/<PermissionController>/5
+
+        // DELETE 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {

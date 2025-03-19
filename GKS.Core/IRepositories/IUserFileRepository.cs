@@ -9,6 +9,7 @@ namespace GKS.Core.IRepositories
 {
     public interface IUserFileRepository
     {
+        //GET
         public Task<List<UserFile>> GetAllFilesAsync();
         public Task<UserFile> GetFileByIdAsync(int id);
         public Task<UserFile> GetFileByNameAsync(string name);
@@ -16,8 +17,10 @@ namespace GKS.Core.IRepositories
         public Task<bool> IsFileNameExistsAsync(int ownerId, string fileName);
         public Task<UserFile> GetFileByUrlAsync(string fileUrl);
 
-        //PUT
+        //Post
         public Task<UserFile> AddFileAsync(UserFile file);
+
+        //PUT
         public Task<bool> updateFileNameAsync(UserFile userFile);
 
 

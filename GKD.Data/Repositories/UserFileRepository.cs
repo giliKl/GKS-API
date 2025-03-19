@@ -17,38 +17,8 @@ namespace GKD.Data.Repositories
         {
             _dataContext = context;
         }
-        public async Task<UserFile> AddFileAsync(UserFile file)
-        {
-            try
-            {
-                await _dataContext._Files.AddAsync(file);
-                await _dataContext.SaveChangesAsync();
-                return file;
-            }
-            catch
-            {
-                return null;
-            }
-        }
 
-        public async Task<bool> DeleteFileAsync(int id)
-        {
-            try
-            {
-                var res = await _dataContext._Files.FirstOrDefaultAsync(file => file.Id == id);
-                if (res == null) return false;
-                _dataContext._Files.Remove(res);
-                await _dataContext.SaveChangesAsync();
-                return true;
-
-            }
-            catch (Exception)
-            {
-
-                return false;
-            }
-        }
-
+        //Get
         public async Task<List<UserFile>> GetAllFilesAsync()
         {
             return await _dataContext._Files.ToListAsync();
@@ -75,6 +45,29 @@ namespace GKD.Data.Repositories
         {
             return await _dataContext._Files.FirstOrDefaultAsync(file => file.FileLink == fileUrl);
         }
+
+        public async Task<bool> IsFileNameExistsAsync(int ownerId, string fileName)
+        {
+            var res = await _dataContext._Files.Where(f => f.OwnerId == ownerId && f.Name == fileName).FirstOrDefaultAsync();
+            return res != null;
+        }
+
+        //POST
+        public async Task<UserFile> AddFileAsync(UserFile file)
+        {
+            try
+            {
+                await _dataContext._Files.AddAsync(file);
+                await _dataContext.SaveChangesAsync();
+                return file;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        //PUT
         public async Task<bool> updateFileNameAsync(UserFile userFile)
         {
 
@@ -93,11 +86,25 @@ namespace GKD.Data.Repositories
 
         }
 
-        public async Task<bool> IsFileNameExistsAsync(int ownerId, string fileName)
+        //DELETE
+        public async Task<bool> DeleteFileAsync(int id)
         {
-            var res = await _dataContext._Files.Where(f => f.OwnerId == ownerId && f.Name == fileName).FirstOrDefaultAsync();
-            return res != null;
+            try
+            {
+                var res = await _dataContext._Files.FirstOrDefaultAsync(file => file.Id == id);
+                if (res == null) return false;
+                _dataContext._Files.Remove(res);
+                await _dataContext.SaveChangesAsync();
+                return true;
+
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
         }
+
 
     }
 }

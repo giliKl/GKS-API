@@ -16,6 +16,8 @@ namespace GKD.Data.Repositories
         {
             _context = context;
         }
+
+        //Get
         public async Task<IEnumerable<Role>> GetRolesAsync()
         {
             return await _context._Roles.ToListAsync();
@@ -27,11 +29,13 @@ namespace GKD.Data.Repositories
             return res;
         }
 
-        public async Task<bool> IsRoleHasPermissinAsync(string roleName, string permission)
+        public async Task<bool> IsRoleHasPermissionAsync(string roleName, string permission)
         {
             var res = await _context._Roles.AnyAsync(r => r.RoleName == roleName && r.Permissions.Any(p => p.PermissionName == permission));
             return res;
         }
+
+        //Post
         public async Task<bool> AddPermissionForRoleAsync(string roleName, Permission permission)
         {
             var role = await _context._Roles.FirstOrDefaultAsync(r => r.RoleName == roleName);
@@ -42,6 +46,7 @@ namespace GKD.Data.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+
         public async Task<bool> AddRoleAsync(Role role)
         {
             try
@@ -56,6 +61,8 @@ namespace GKD.Data.Repositories
                 throw new Exception("failed to add role");
             }
         }
+
+        //Put
         public async Task<bool> UpdateRoleAsync(int id, Role role)
         {
             try
@@ -74,6 +81,8 @@ namespace GKD.Data.Repositories
                 return false;
             }
         }
+
+        //Delete
         public async Task<bool> DeleteRoleAsync(int id)
         {
             try

@@ -14,11 +14,13 @@ namespace GKS.Service.Services
     public class UserService : IUserService
     {
         readonly IUserRepository _userRepository;
+        readonly IRoleRepository _roleRepository;
         readonly IMapper _mapper;
 
-        public UserService(IMapper mapper, IUserRepository userRepository)
+        public UserService(IMapper mapper, IUserRepository userRepository, IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
             _mapper = mapper;
         }
 
@@ -26,6 +28,7 @@ namespace GKS.Service.Services
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
             var users = await _userRepository.GetAllUsersAsync();
+            users = users.ToList().Where(user => !user.Roles.Any(role => role.RoleName == "Admin"));
             return _mapper.Map<UserDto[]>(users);
         }
 
@@ -41,8 +44,9 @@ namespace GKS.Service.Services
             return _mapper.Map<UserDto>(user);
         }
 
-        //Put
-        public async Task<UserDto> AddUserAsync(UserDto user)
+
+        //Post
+        public async Task<UserDto> AddUserAsync(UserDto user, string[] roles)
         {
             var existingUser = await _userRepository.GetUserByEmailAsync(user.Email);
 
@@ -52,21 +56,28 @@ namespace GKS.Service.Services
             }
 
             var res = await _userRepository.AddUserAsync(_mapper.Map<User>(user));
+            if (res != null)
+            {
+                for (int i = 0; i < roles.Length; i++)
+                {
+                    await _userRepository.UpdateRoleAsync(res.Id, await _roleRepository.GetRoleByNameAsync(roles[i]));
+                }
+            }
 
             return _mapper.Map<UserDto>(res);
         }
 
-        //Delete
-        public async Task<bool> DeleteUserAsync(int id)
-        {
-            return await _userRepository.DeleteUserAsync(id);
-        }
-
-        //Post
         public async Task<UserDto> LogInAsync(string email, string password)
         {
             var user = await _userRepository.LogInAsync(email, password);
             return _mapper.Map<UserDto>(user);
+        }
+
+
+        //Put
+        public async Task<bool> EnableUserAsync(int id)
+        {
+            return await _userRepository.EnableUserAsync(id);
         }
 
         public async Task<bool> UpDateNameAsync(int id, string name)
@@ -82,6 +93,13 @@ namespace GKS.Service.Services
         public async Task<bool> UpdateRoleAsync(int id, Role role)
         {
             return await _userRepository.UpdateRoleAsync(id, role);
+        }
+
+
+        //Delete
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            return await _userRepository.DeleteUserAsync(id);
         }
     }
 }

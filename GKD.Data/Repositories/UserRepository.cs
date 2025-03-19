@@ -17,11 +17,13 @@ namespace GKD.Data.Repositories
             _dataContext = dataContext;
         }
 
+
+        //Get
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
             try
             {
-                return await _dataContext._Users.ToListAsync();
+                return await _dataContext._Users.Include(r => r.Roles).ToListAsync();
             }
             catch (Exception ex)
             {
@@ -30,7 +32,7 @@ namespace GKD.Data.Repositories
             }
         }
 
-        public async Task<User> GetUserByEmailAsync(string email) 
+        public async Task<User> GetUserByEmailAsync(string email)
         {
             try
             {
@@ -56,6 +58,22 @@ namespace GKD.Data.Repositories
             }
         }
 
+        //Post
+        public async Task<User> AddUserAsync(User user)
+        {
+            try
+            {
+                await _dataContext._Users.AddAsync(user);
+                await _dataContext.SaveChangesAsync();
+                return user;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in AddUserAsync: {ex.Message}");
+                return null;
+            }
+        }
+
         public async Task<User> LogInAsync(string email, string password)
         {
             try
@@ -69,18 +87,25 @@ namespace GKD.Data.Repositories
             }
         }
 
-        public async Task<User> AddUserAsync(User user) 
+
+        //Put
+        public async Task<bool> EnableUserAsync(int id)
         {
             try
             {
-                await _dataContext._Users.AddAsync(user);
+                var user = await _dataContext._Users.FirstOrDefaultAsync(user => user.Id == id);
+                if (user == null)
+                {
+                    return false;
+                }
+                user.IsActive = true;
                 await _dataContext.SaveChangesAsync();
-                return user;
+                return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in AddUserAsync: {ex.Message}");
-                return null;
+                Console.WriteLine($"Error in EnableUserAsync: {ex.Message}");
+                return false;
             }
         }
 
@@ -100,6 +125,7 @@ namespace GKD.Data.Repositories
                 return false;
             }
         }
+
         public async Task<bool> UpdatePasswordAsync(int id, string password)
         {
             try
@@ -126,7 +152,7 @@ namespace GKD.Data.Repositories
         {
             try
             {
-                var user =await _dataContext._Users.FirstOrDefaultAsync(user => user.Id == id);
+                var user = await _dataContext._Users.FirstOrDefaultAsync(user => user.Id == id);
                 if (user == null)
                 {
                     return false;
@@ -142,6 +168,7 @@ namespace GKD.Data.Repositories
             }
         }
 
+        //Delete
         public async Task<bool> DeleteUserAsync(int id)
         {
             try

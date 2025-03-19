@@ -9,11 +9,18 @@ namespace GKS.Core.IRepositories
 {
     public interface IPermissionRepository
     {
-        public Task<Permission> AddPermissionAsync(Permission permission);
+        //Get
         public Task<List<Permission>> GetPermissionsAsync();
         public Task<Permission> GetPermissionByIdAsync(int id);
         public Task<Permission> GetPermissionByNameAsync(string name);
-        public Task<bool> RemovePermissionAsync(int id);
+
+        //Post
+        public Task<Permission> AddPermissionAsync(Permission permission);
+
+        //Put
         public Task<Permission> UpdatePermissionAsync(int id, Permission permission);
+
+        //Delete
+        public Task<bool> RemovePermissionAsync(int id);
     }
 }

@@ -25,7 +25,7 @@ namespace GKS_API.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/<FileController>
+        // GET
         [HttpGet]
         public async Task<IActionResult> GetAllUserFiles()
         {
@@ -33,7 +33,6 @@ namespace GKS_API.Controllers
             return Ok(files);
         }
 
-        // GET api/<FileController>/5
         [HttpGet("user/{id}")]
         public async Task<ActionResult<UserFileDto[]>> GetUserFilesByUserId(int id)
         {
@@ -47,7 +46,6 @@ namespace GKS_API.Controllers
             }
             return Ok(userFiles);
         }
-        // GET api/<FileController>/5
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFileById(int id)
@@ -59,6 +57,7 @@ namespace GKS_API.Controllers
             return Ok(file);
         }
 
+        //Post
         [HttpPost("IsFile/{id}")]
         public async Task<ActionResult> IsFileExist(int id, [FromBody] string name)
         {
@@ -66,7 +65,7 @@ namespace GKS_API.Controllers
             return Ok(result);
         }
 
-        // POST api/<FileController>
+        // POST 
 
         [HttpPost("upload/{id}")]
         [Consumes("multipart/form-data")]
@@ -80,10 +79,8 @@ namespace GKS_API.Controllers
             return Ok(new { encryptedLink = result });
         }
 
-        [Produces("application/octet-stream")]
+
         [HttpPost("decrypt-file")]
-        [ProducesResponseType(typeof(FileContentResult), 200)]
-        [ProducesResponseType(401)]
         public async Task<IActionResult> DecryptFile([FromBody] DecryptionPostModel request)
         {
             var result = await _fileService.DecryptFileAsync(request.EncryptedLink, request.Password);
@@ -97,7 +94,8 @@ namespace GKS_API.Controllers
 
         }
 
-        // PUT api/<FileController>/5
+
+        // PUT 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateFileName(int id, [FromBody] string newFileName)
         {
@@ -108,7 +106,8 @@ namespace GKS_API.Controllers
             return Ok(result);
         }
 
-        // DELETE api/<FileController>/5
+
+        // DELETE 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFile(int id)
         {

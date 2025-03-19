@@ -85,7 +85,7 @@ namespace GKS.Service.Services
             }
         }
 
-        // לדוגמה: פונקציה לשליפת המידע מתוך הטוקן (כגון שם המשתמש)
+        //  פונקציה לשליפת המידע מתוך הטוקן (כגון שם המשתמש)
         public string GetUsernameFromToken(string token)
         {
             var principal = ValidateToken(token);
