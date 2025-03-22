@@ -14,13 +14,15 @@ namespace GKS.Service.Services
     public class UserService : IUserService
     {
         readonly IUserRepository _userRepository;
+        readonly IUserActivityRepository _userActivityRepository;
         readonly IRoleRepository _roleRepository;
         readonly IMapper _mapper;
 
-        public UserService(IMapper mapper, IUserRepository userRepository, IRoleRepository roleRepository)
+        public UserService(IMapper mapper, IUserRepository userRepository, IRoleRepository roleRepository, IUserActivityRepository userActivityRepository)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            _userActivityRepository = userActivityRepository;
             _mapper = mapper;
         }
 
@@ -62,6 +64,7 @@ namespace GKS.Service.Services
                 {
                     await _userRepository.UpdateRoleAsync(res.Id, await _roleRepository.GetRoleByNameAsync(roles[i]));
                 }
+                await _userActivityRepository.LogActivityAsync(user.Id, "Register");
             }
 
             return _mapper.Map<UserDto>(res);
@@ -70,6 +73,10 @@ namespace GKS.Service.Services
         public async Task<UserDto> LogInAsync(string email, string password)
         {
             var user = await _userRepository.LogInAsync(email, password);
+            if (user != null)
+            {
+                await _userActivityRepository.LogActivityAsync(user.Id, "Login");
+            }
             return _mapper.Map<UserDto>(user);
         }
 

@@ -11,7 +11,6 @@ namespace GKS.Core.DTOS
         public int Id { get; set; }
         public string Name { get; set; }
         public int OwnerId { get; set; }
-        public string FileLink { get; set; }
         public string EncryptedLink { get; set; }
         public string FilePassword { get; set; }
         public string FileType { get; set; }

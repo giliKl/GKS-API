@@ -24,6 +24,7 @@ builder.Services.AddScoped<IFileService, UserFileService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService,RoleService>();
 builder.Services.AddScoped<IPermissionService,PermissionService>();
+builder.Services.AddScoped<IUserActivityService,UserActivityService>();
 
 
 // Repositories
@@ -31,6 +32,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserFileRepository, UserFileRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<IPermissionRepository, PermissionRepository>();
+builder.Services.AddScoped<IUserActivityRepository, UserActivityRepository>();
 
 
 
