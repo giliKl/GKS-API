@@ -21,9 +21,10 @@ namespace GKS.Core.IServices
 
         //Put
         public Task<bool> EnableUserAsync(int id);
+        public Task<bool> DisableUserAsync(int id);
         public Task<bool> UpdatePasswordAsync(int id, string password);
         public Task<bool> UpDateNameAsync(int id, string name);
-        public Task<bool> UpdateRoleAsync(int id, Role role);
+        public Task<bool> UpdateRoleAsync(int id, RoleDto role);
 
         //Delete
         public Task<bool> DeleteUserAsync(int id);

@@ -23,8 +23,11 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFileService, UserFileService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService,RoleService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IPermissionService,PermissionService>();
 builder.Services.AddScoped<IUserActivityService,UserActivityService>();
+builder.Services.AddScoped<FileStorageService>();
+
 
 
 // Repositories
@@ -41,11 +44,10 @@ builder.Services.AddScoped<IDataContext, DataContext>();
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    var conection = "Host=localhost;Port=5432;Database=GKS;Username=postgres;Password=gK215114760";
+    var conection = builder.Configuration["DB_CONECTION_STRING"];
     options.UseNpgsql(conection);
 });
 
-builder.Services.AddScoped<FileStorageService>();
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -54,7 +56,10 @@ builder.Services.AddCors(options =>
     {
         builder.AllowAnyOrigin()  // מאפשר לכל מקור לגשת
                .AllowAnyMethod()  // מאפשר כל שיטה (GET, POST וכו')
-               .AllowAnyHeader(); // מאפשר כל כותרת
+               .AllowAnyHeader();
+                                      
+
+        // מאפשר כל כותרת
     });
 });
 
@@ -63,12 +68,6 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.WriteIndented = true;
 });
-
-
-Console.WriteLine($"AWS_REGION: {Environment.GetEnvironmentVariable("AWS_REGION")}");
-Console.WriteLine($"AWS_ACCESS_KEY_ID: {Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID")}");
-Console.WriteLine($"AWS_SECRET_ACCESS_KEY: {Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY")}");
-Console.WriteLine($"AWS_BUCKET_NAME: {Environment.GetEnvironmentVariable("AWS_BUCKET_NAME")}");
 
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -121,7 +120,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["JWT:Issuer"],
         ValidAudience = builder.Configuration["JWT:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT_KEY"]))
     };
 });
 
@@ -129,8 +128,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("EditorOrAdmin", policy => policy.RequireRole("Editor", "Admin"));
-    options.AddPolicy("ViewerOnly", policy => policy.RequireRole("Viewer"));
+    options.AddPolicy("UserOrAdmin", policy => policy.RequireRole("User", "Admin"));
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
 });
 
 var app = builder.Build();

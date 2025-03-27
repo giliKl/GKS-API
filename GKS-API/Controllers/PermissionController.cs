@@ -1,8 +1,8 @@
 ﻿using GKS.Core.DTOS;
 using GKS.Core.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace GKS_API.Controllers
 {
@@ -11,6 +11,7 @@ namespace GKS_API.Controllers
     public class PermissionController : ControllerBase
     {
         readonly IPermissionService _permissionService;
+
         public PermissionController(IPermissionService permissionService)
         {
             _permissionService = permissionService;
@@ -19,13 +20,15 @@ namespace GKS_API.Controllers
 
         // GET
         [HttpGet]
-        public async Task<ActionResult> GetAllPermissin()
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult> GetAllPermissionAsync()
         {
             return Ok(await _permissionService.GetPermissionsAsync());
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> Get(int id)
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult> GetPermissionByIdAsync(int id)
         {
             var res = await _permissionService.GetPermissionByIdAsync(id);
             if (res == null) return NotFound();
@@ -33,7 +36,8 @@ namespace GKS_API.Controllers
         }
 
         [HttpGet("/name/{name}")]
-        public async Task<ActionResult> GetbyName(string name)
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult> GetByNameAsync(string name)
         {
             var res = await _permissionService.GetPermissionByNameAsync(name);
             if (res == null) return NotFound();
@@ -43,7 +47,8 @@ namespace GKS_API.Controllers
 
         // POST 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] PermissionDto permission)
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult> AddPermissionAsync([FromBody] PermissionDto permission)
         {
             var res = await _permissionService.AddPermissionAsync(permission);
             if (res == null) return BadRequest();
@@ -53,7 +58,8 @@ namespace GKS_API.Controllers
 
         // PUT 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, [FromBody] PermissionDto permission)
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult> UpdatePermissionAsync(int id, [FromBody] PermissionDto permission)
         {
             var res = await _permissionService.UpdatePermissionAsync(id, permission);
             if (res == null) return BadRequest();
@@ -63,7 +69,8 @@ namespace GKS_API.Controllers
 
         // DELETE 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult> DeletePermissionAsync(int id)
         {
             var res = await _permissionService.RemovePermissionAsync(id);
             if (!res) return NotFound();

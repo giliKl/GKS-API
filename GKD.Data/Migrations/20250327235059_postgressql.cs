@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -8,11 +7,27 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GKD.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class GKSdb : Migration
+    public partial class postgressql : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "_Roles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoleName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateOnly>(type: "date", nullable: false),
+                    UpdatedAt = table.Column<DateOnly>(type: "date", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK__Roles", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "_Users",
                 columns: table => new
@@ -22,7 +37,6 @@ namespace GKD.Data.Migrations
                     Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     Password = table.Column<string>(type: "text", nullable: false),
-                    FilesId = table.Column<List<int>>(type: "integer[]", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -45,42 +59,52 @@ namespace GKD.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Role",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RoleName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Role", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "_Files",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     OwnerId = table.Column<int>(type: "integer", nullable: false),
-                    UserId = table.Column<int>(type: "integer", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     FileLink = table.Column<string>(type: "text", nullable: false),
                     EncryptedLink = table.Column<string>(type: "text", nullable: false),
                     FilePassword = table.Column<string>(type: "text", nullable: false),
+                    FileType = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateOnly>(type: "date", nullable: false),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                    UpdateAt = table.Column<DateOnly>(type: "date", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    EmailAloowed = table.Column<string[]>(type: "text[]", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK__Files", x => x.Id);
                     table.ForeignKey(
-                        name: "FK__Files__Users_UserId",
-                        column: x => x.UserId,
+                        name: "FK__Files__Users_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "_Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoleUser",
+                columns: table => new
+                {
+                    RolesId = table.Column<int>(type: "integer", nullable: false),
+                    UsersId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoleUser", x => new { x.RolesId, x.UsersId });
+                    table.ForeignKey(
+                        name: "FK_RoleUser__Roles_RolesId",
+                        column: x => x.RolesId,
+                        principalTable: "_Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RoleUser__Users_UsersId",
+                        column: x => x.UsersId,
                         principalTable: "_Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -103,41 +127,60 @@ namespace GKD.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PermissionRole_Role_RolesId",
+                        name: "FK_PermissionRole__Roles_RolesId",
                         column: x => x.RolesId,
-                        principalTable: "Role",
+                        principalTable: "_Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "RoleUser",
+                name: "_UserActivityLogs",
                 columns: table => new
                 {
-                    RolesId = table.Column<int>(type: "integer", nullable: false),
-                    UsersId = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    ActionType = table.Column<string>(type: "text", nullable: false),
+                    FileId = table.Column<int>(type: "integer", nullable: true),
+                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_RoleUser", x => new { x.RolesId, x.UsersId });
+                    table.PrimaryKey("PK__UserActivityLogs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RoleUser_Role_RolesId",
-                        column: x => x.RolesId,
-                        principalTable: "Role",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK__UserActivityLogs__Files_FileId",
+                        column: x => x.FileId,
+                        principalTable: "_Files",
+                        principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_RoleUser__Users_UsersId",
-                        column: x => x.UsersId,
+                        name: "FK__UserActivityLogs__Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "_Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX__Files_UserId",
+                name: "IX__Files_OwnerId",
                 table: "_Files",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX__UserActivityLogs_FileId",
+                table: "_UserActivityLogs",
+                column: "FileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX__UserActivityLogs_UserId",
+                table: "_UserActivityLogs",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX__Users_Email",
+                table: "_Users",
+                column: "Email",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PermissionRole_RolesId",
@@ -154,7 +197,7 @@ namespace GKD.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "_Files");
+                name: "_UserActivityLogs");
 
             migrationBuilder.DropTable(
                 name: "PermissionRole");
@@ -163,10 +206,13 @@ namespace GKD.Data.Migrations
                 name: "RoleUser");
 
             migrationBuilder.DropTable(
+                name: "_Files");
+
+            migrationBuilder.DropTable(
                 name: "Permissions");
 
             migrationBuilder.DropTable(
-                name: "Role");
+                name: "_Roles");
 
             migrationBuilder.DropTable(
                 name: "_Users");

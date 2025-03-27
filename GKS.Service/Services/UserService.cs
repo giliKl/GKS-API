@@ -3,11 +3,6 @@ using GKS.Core.DTOS;
 using GKS.Core.Entities;
 using GKS.Core.IRepositories;
 using GKS.Core.IServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GKS.Service.Services
 {
@@ -64,7 +59,7 @@ namespace GKS.Service.Services
                 {
                     await _userRepository.UpdateRoleAsync(res.Id, await _roleRepository.GetRoleByNameAsync(roles[i]));
                 }
-                await _userActivityRepository.LogActivityAsync(user.Id, "Register");
+                await _userActivityRepository.LogActivityAsync(res.Id, "Register");
             }
 
             return _mapper.Map<UserDto>(res);
@@ -87,6 +82,11 @@ namespace GKS.Service.Services
             return await _userRepository.EnableUserAsync(id);
         }
 
+        public async Task<bool> DisableUserAsync(int id)
+        {
+            return await _userRepository.DisableUserAsync(id);
+        }
+
         public async Task<bool> UpDateNameAsync(int id, string name)
         {
             return await _userRepository.UpDateNameAsync(id, name);
@@ -97,9 +97,9 @@ namespace GKS.Service.Services
             return await _userRepository.UpdatePasswordAsync(id, password);
         }
 
-        public async Task<bool> UpdateRoleAsync(int id, Role role)
+        public async Task<bool> UpdateRoleAsync(int id, RoleDto role)
         {
-            return await _userRepository.UpdateRoleAsync(id, role);
+            return await _userRepository.UpdateRoleAsync(id, _mapper.Map <Role>( role));
         }
 
 

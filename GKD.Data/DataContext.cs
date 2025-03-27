@@ -21,10 +21,13 @@ namespace GKD.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!optionsBuilder.IsConfigured)
+            var connectionString = Environment.GetEnvironmentVariable("DB_CONECTION_STRING");
+
+            if (string.IsNullOrEmpty(connectionString))
             {
-                optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=GKS;Username=postgres;Password=gK215114760");
+                throw new Exception("Connection string is not set in environment variables.");
             }
+
             optionsBuilder.LogTo(m => Console.WriteLine(m));
             base.OnConfiguring(optionsBuilder);
 

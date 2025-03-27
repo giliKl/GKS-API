@@ -16,5 +16,6 @@ namespace GKS.Core.DTOS
         public string RoleName { get; set; }
 
         public string Description { get; set; }
+
     }
 }

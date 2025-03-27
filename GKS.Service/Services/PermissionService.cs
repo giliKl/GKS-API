@@ -3,11 +3,7 @@ using GKS.Core.DTOS;
 using GKS.Core.Entities;
 using GKS.Core.IRepositories;
 using GKS.Core.IServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace GKS.Service.Services
 {

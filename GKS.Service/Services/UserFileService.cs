@@ -15,17 +15,18 @@ namespace GKS.Service.Services
     public class UserFileService : IFileService
     {
         private readonly IUserFileRepository _userFileRepository;
+        private readonly IUserService _userService;
         private readonly FileStorageService _fileStorageService;
         private readonly string _encryptionKey;
         readonly IMapper _mapper;
 
-        public UserFileService(IUserFileRepository fileRepository, FileStorageService fileStorageService, IConfiguration configuration, IMapper mapper)
+        public UserFileService(IUserFileRepository fileRepository, FileStorageService fileStorageService, IConfiguration configuration, IMapper mapper, IUserService userService)
         {
             _userFileRepository = fileRepository;
             _fileStorageService = fileStorageService;
             _mapper = mapper;
             _encryptionKey = configuration["ENCRYPTION_KEY"];
-
+            _userService = userService;
         }
 
         //Get
@@ -47,24 +48,36 @@ namespace GKS.Service.Services
             return _mapper.Map<UserFileDto[]>(res);
         }
 
-        public async Task<bool> IsFileNameExist(int id, string name)
+        public async Task<List<UserFileDto>> GetFileshareByEmailAsync(string email)
         {
-            return await _userFileRepository.IsFileNameExistsAsync(id, name);
+            var res = await _userFileRepository.GetFileshareByEmail(email);
+            var filteredFiles = res.Where(x => x.EmailAloowed.Any(e => email == e)).ToList();
+            return _mapper.Map<List<UserFileDto>>(filteredFiles);
+        }
+        public async Task<bool> CheckingIsAllowedViewAsync(string email, SharingFileDto sharingFile)
+        {
+            string decryptionpassword = DecryptLinkOrPassword(sharingFile.Password, _encryptionKey);
+            string[] arr = decryptionpassword.Split(',');
+            var userFile = await _userFileRepository.GetFileByIdAsync(sharingFile.Id);
+            if (arr[0] != userFile.Id.ToString() || arr[1] != email)
+            {
+                return false;
+            }
+
+            return await _userFileRepository.CheckingIsAllowedEmailAsync(userFile.Id, email);
         }
 
-
         //Post
-        public async Task<FileContentResult> DecryptFileAsync(string encryptedLink, string password)
+        public async Task<FileContentResult> GetDecryptFileAsync(SharingFileDto decryption)
         {
-            // פענוח הקישור כדי לקבל את הנתיב לקובץ ב-S3
-            string fileUrl = DecryptLink(encryptedLink, _encryptionKey);
+            var userFile = await _userFileRepository.GetFileByIdAsync(decryption.Id);
 
-            // חיפוש הקובץ במסד הנתונים
-            var userFile = await _userFileRepository.GetFileByUrlAsync(fileUrl);
-            if (userFile == null || userFile.FilePassword != password)
+            if (userFile == null || userFile.FilePassword != decryption.Password)
             {
                 return null; // סיסמה לא נכונה או קובץ לא נמצא
             }
+
+            string fileUrl = DecryptLinkOrPassword(userFile.EncryptedLink, _encryptionKey);
 
             // הורדת הקובץ המוצפן מ-S3
             var encryptedFileBytes = await _fileStorageService.DownloadFileAsync(fileUrl);
@@ -78,7 +91,7 @@ namespace GKS.Service.Services
 
             return new FileContentResult(decryptedFile, userFile.FileType)
             {
-                FileDownloadName = "decrypted_file" // שם ברירת מחדל לקובץ, אפשר להחליף בשם שמגיע ממסד הנתונים
+                FileDownloadName = userFile.Name + "." + userFile.FileType // שם ברירת מחדל לקובץ, אפשר להחליף בשם שמגיע ממסד הנתונים
             };
 
         }
@@ -96,7 +109,7 @@ namespace GKS.Service.Services
                 return null;
             }
             // הצפנת הקישור
-            string encryptedLink = EncryptLink(fileUrl, _encryptionKey);
+            string encryptedLink = EncryptLinkOrPassword(fileUrl, _encryptionKey);
             
             // שמירה במסד הנתונים
             await _userFileRepository.AddFileAsync(new UserFile
@@ -110,6 +123,11 @@ namespace GKS.Service.Services
             });
 
             return encryptedLink;
+        }
+
+        public async Task<bool> IsFileNameExistAsync(int id, string name)
+        {
+            return await _userFileRepository.IsFileNameExistsAsync(id, name);
         }
 
 
@@ -131,7 +149,7 @@ namespace GKS.Service.Services
                     return false;
                 }
                 userFile.FileLink = newLink;
-                userFile.EncryptedLink = EncryptLink(userFile.FileLink, _encryptionKey);
+                userFile.EncryptedLink = EncryptLinkOrPassword(userFile.FileLink, _encryptionKey);
                 userFile.Name = newFileName;
                 return await _userFileRepository.updateFileNameAsync(userFile);
             }
@@ -142,6 +160,24 @@ namespace GKS.Service.Services
             }
         }
 
+        public async Task<SharingFileDto> SharingFileAsync(int id, string email)
+        {
+            var user = await _userService.GetUserByEmailAsync(email);
+            if (user == null)
+            {
+                return null;
+            }
+            var userFile = await _userFileRepository.GetFileByIdAsync(id);
+            if (userFile == null) { return null; }
+            await _userFileRepository.UpdateEmailListAsync(id, email);
+            string keyuser = userFile.Id.ToString() + ',' + email;
+            string password = EncryptLinkOrPassword(keyuser, _encryptionKey);
+            return new SharingFileDto
+            {
+                Id = userFile.Id,
+                Password = password
+            };
+        }
 
         //Delete
         public async Task<bool> DeleteUserFileAsync(int id)
@@ -182,7 +218,7 @@ namespace GKS.Service.Services
 
                 using (var aes = Aes.Create())
                 {
-                    aes.Key = Encoding.UTF8.GetBytes(key);
+                    aes.Key = Encoding.UTF8.GetBytes(key.PadRight(24).Substring(0, 24));
                     aes.IV = new byte[16]; // ניתן לשפר עם IV דינמי
 
                     using (var encryptor = aes.CreateEncryptor())
@@ -196,7 +232,7 @@ namespace GKS.Service.Services
         {
             using (var aes = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.Key = Encoding.UTF8.GetBytes(key.PadRight(24).Substring(0, 24));
                 aes.IV = new byte[16]; // אותו IV ששימש בהצפנה
 
                 using (var decryptor = aes.CreateDecryptor())
@@ -206,12 +242,12 @@ namespace GKS.Service.Services
             }
         }
 
-        private string EncryptLink(string data, string key)
+        private string EncryptLinkOrPassword(string data, string key)
         {
             byte[] dataBytes = Encoding.UTF8.GetBytes(data);
             using (var aes = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.Key = Encoding.UTF8.GetBytes(key.PadRight(24).Substring(0, 24)); // Ensures 32-byte key
                 aes.IV = new byte[16];
 
                 using (var encryptor = aes.CreateEncryptor())
@@ -222,13 +258,14 @@ namespace GKS.Service.Services
             }
         }
 
-        private string DecryptLink(string encryptedLink, string key)
+
+        private string DecryptLinkOrPassword(string encryptedLink, string key)
         {
             byte[] encryptedBytes = Convert.FromBase64String(encryptedLink);
 
             using (var aes = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes(key);
+                aes.Key = Encoding.UTF8.GetBytes(key.PadRight(24).Substring(0, 24)); // Ensures 32-byte key
                 aes.IV = new byte[16]; // אותו IV ששימש בהצפנה
 
                 using (var decryptor = aes.CreateDecryptor())

@@ -17,7 +17,7 @@ namespace GKS.Core.Entities
 
         [ForeignKey("OwnerId")]
         public User User { get; set; }
-        
+
         [Required]
         public string Name { get; set; }
         [Required]
@@ -30,8 +30,10 @@ namespace GKS.Core.Entities
         public string FileType { get; set; }
         [Required]
         public DateOnly CreatedAt { get; set; } = DateOnly.FromDateTime(DateTime.Now);
+        [Required]
+        public DateOnly UpdateAt { get; set; } = DateOnly.FromDateTime(DateTime.Now);
         public bool IsActive { get; set; } = true;
-
+        public ICollection<string> EmailAloowed { get; set; } = new List<string>();
 
     }
 }

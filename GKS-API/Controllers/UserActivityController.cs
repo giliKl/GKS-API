@@ -1,7 +1,7 @@
 ﻿using GKS.Core.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace GKS_API.Controllers
 {
@@ -17,28 +17,32 @@ namespace GKS_API.Controllers
         }
 
         [HttpGet("user-monthly-usage/{Id}")]
-        public async Task<IActionResult> GetUserMonthlyUsage( int Id, [FromQuery] int year, [FromQuery] int month)
+        [Authorize(Policy = "UserOnly")]
+        public async Task<IActionResult> GetUserMonthlyUsageAsync( int Id, [FromQuery] int year, [FromQuery] int month)
         {
             var result = await _service.GetUserMonthlyUsageAsync(Id, year, month);
             return Ok(result);
         }
 
         [HttpGet("user-yearly-usage/{Id}")]
-        public async Task<IActionResult> GetUserYearlyUsage( int Id, [FromQuery] int year)
+        [Authorize(Policy = "UserOnly")]
+        public async Task<IActionResult> GetUserYearlyUsageAsync( int Id, [FromQuery] int year)
         {
             var result = await _service.GetUserYearlyUsageAsync(Id, year);
             return Ok(result);
         }
 
         [HttpGet("yearly-usage")]
-        public async Task<IActionResult> GetYearlyUsage([FromQuery] int year)
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> GetYearlyUsageAsync([FromQuery] int year)
         {
             var result = await _service.GetYearlyUsageAsync(year);
             return Ok(result);
         }
 
         [HttpGet("monthly-usage")]
-        public async Task<ActionResult<Dictionary<int, int>>> GetMonthlyUsage([FromQuery] int year, [FromQuery] int month)
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult<Dictionary<int, int>>> GetMonthlyUsageAsync([FromQuery] int year, [FromQuery] int month)
         {
             var result = await _service.GetMonthlyUsageAsync(year, month);
             return Ok(result);

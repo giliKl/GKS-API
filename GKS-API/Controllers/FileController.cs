@@ -1,15 +1,9 @@
-﻿using AutoMapper;
-using GKD.Data.Migrations;
-using GKS.Core.DTOS;
-using GKS.Core.Entities;
-using GKS.Core.IRepositories;
+﻿using GKS.Core.DTOS;
 using GKS.Core.IServices;
-using GKS.Service.Post_Model;
 using GKS.Service.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Sprache;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace GKS_API.Controllers
 {
@@ -18,23 +12,24 @@ namespace GKS_API.Controllers
     public class FileController : ControllerBase
     {
         private readonly IFileService _fileService;
-        readonly IMapper _mapper;
-        public FileController(IFileService fileService, IMapper mapper)
+
+        public FileController(IFileService fileService)
         {
             _fileService = fileService;
-            _mapper = mapper;
         }
 
         // GET
         [HttpGet]
-        public async Task<IActionResult> GetAllUserFiles()
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> GetAllUserFilesAsync()
         {
             var files = await _fileService.GetAllUserFilesAsync();
             return Ok(files);
         }
 
         [HttpGet("user/{id}")]
-        public async Task<ActionResult<UserFileDto[]>> GetUserFilesByUserId(int id)
+        [Authorize(Policy = "UserOnly")]
+        public async Task<ActionResult<UserFileDto[]>> GetUserFilesByUserIdAsync(int id)
         {
 
             if (id < 0)
@@ -48,7 +43,8 @@ namespace GKS_API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetFileById(int id)
+        [Authorize(Policy = "UserOrAdmin")]
+        public async Task<IActionResult> GetFileByIdAsync(int id)
         {
             var file = await _fileService.GetUserFileByIdAsync(id);
             if (file == null)
@@ -57,19 +53,45 @@ namespace GKS_API.Controllers
             return Ok(file);
         }
 
+        [HttpGet("filesShared/{email}")]
+        [Authorize(Policy = "UserOnly")]
+        public async Task<ActionResult> GetFileshareByEmailAsync(string email)
+        {
+            var file = await _fileService.GetFileshareByEmailAsync(email);
+            return Ok(file);
+        }
+
         //Post
         [HttpPost("IsFile/{id}")]
-        public async Task<ActionResult> IsFileExist(int id, [FromBody] string name)
+        [Authorize(Policy = "UserOrAdmin")]
+        public async Task<ActionResult> IsFileExistAsync(int id, [FromBody] string name)
         {
-            var result = await _fileService.IsFileNameExist(id, name);
+            var result = await _fileService.IsFileNameExistAsync(id, name);
             return Ok(result);
         }
 
-        // POST 
+        [HttpPost("CheckingIsAllowedView/{email}")]
+        [Authorize(Policy = "UserOrAdmin")]
+        public async Task<ActionResult> CheckingIsAllowedViewAsync(string email, [FromBody] SharingFileDto sharingFileDto)
+        {
+            var file = await _fileService.GetUserFileByIdAsync(sharingFileDto.Id);
+            if (file == null)
+                return NotFound("File not found.");
+
+            sharingFileDto.Password = file.FilePassword;
+            var result = await _fileService.GetDecryptFileAsync(sharingFileDto);
+            if (result == null)
+                return NotFound("File not found.");
+
+            return File(result.FileContents, result.ContentType, result.FileDownloadName);
+
+        }
+
 
         [HttpPost("upload/{id}")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadFile(int id, [FromForm] UploadFileDto request)
+        [Authorize(Policy = "UserOnly")]
+        public async Task<IActionResult> UploadFileAsync(int id, [FromForm] UploadFileDto request)
         {
             if (request.File == null || request.File.Length == 0)
                 return BadRequest("File is required.");
@@ -81,9 +103,10 @@ namespace GKS_API.Controllers
 
 
         [HttpPost("decrypt-file")]
-        public async Task<IActionResult> DecryptFile([FromBody] DecryptionPostModel request)
+        [Authorize(Policy = "UserOnly")]
+        public async Task<IActionResult> DecryptFileAsync([FromBody] SharingFileDto request)
         {
-            var result = await _fileService.DecryptFileAsync(request.EncryptedLink, request.Password);
+            var result = await _fileService.GetDecryptFileAsync(request);
             if (result == null)
             {
                 return Unauthorized("Invalid password or file not found.");
@@ -96,8 +119,19 @@ namespace GKS_API.Controllers
 
 
         // PUT 
+        [HttpPut("Sharing/{id}")]
+        [Authorize(Policy = "UserOnly")]
+        public async Task<ActionResult> SharingFileAsync(int id, [FromBody] string email)
+        {
+            var result = await _fileService.SharingFileAsync(id, email);
+            if (result == null)
+                return NotFound("File not found.");
+            return Ok(result);
+        }
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateFileName(int id, [FromBody] string newFileName)
+        [Authorize(Policy = "UserOnly")]
+        public async Task<IActionResult> UpdateFileNameAsync(int id, [FromBody] string newFileName)
         {
             var result = await _fileService.UpdateFileNameAsync(id, newFileName);
             if (!result)
@@ -109,7 +143,8 @@ namespace GKS_API.Controllers
 
         // DELETE 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteFile(int id)
+        [Authorize(Policy = "UserOrAdmin")]
+        public async Task<IActionResult> DeleteFileAsync(int id)
         {
             var result = await _fileService.DeleteUserFileAsync(id);
             if (!result)

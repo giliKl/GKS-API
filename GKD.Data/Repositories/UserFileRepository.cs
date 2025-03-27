@@ -37,8 +37,7 @@ namespace GKD.Data.Repositories
 
         public async Task<UserFile[]> GetUserFilesByUserIdAsync(int userId)
         {
-            var userFiles = await _dataContext._Files.Where(file => file.OwnerId == userId).ToArrayAsync();
-            return userFiles;
+            return await _dataContext._Files.Where(file => file.OwnerId == userId).ToArrayAsync();
         }
 
         public async Task<UserFile> GetFileByUrlAsync(string fileUrl)
@@ -50,6 +49,17 @@ namespace GKD.Data.Repositories
         {
             var res = await _dataContext._Files.Where(f => f.OwnerId == ownerId && f.Name == fileName).FirstOrDefaultAsync();
             return res != null;
+        }
+
+        public async Task<List<UserFile>> GetFileshareByEmail(string email)
+        {
+            return _dataContext._Files.ToList();
+        }
+
+        public async Task<bool> CheckingIsAllowedEmailAsync(int id, string email)
+        {
+            return await _dataContext._Files.AnyAsync(file => file.Id == id && file.EmailAloowed.Any(e => e == email));
+
         }
 
         //POST
@@ -74,6 +84,8 @@ namespace GKD.Data.Repositories
             var userFileToUpdate = await _dataContext._Files.FirstOrDefaultAsync(file => file.Id == userFile.Id);
             if (userFileToUpdate == null) return false;
             userFileToUpdate.Name = userFile.Name;
+            userFileToUpdate.UpdateAt = DateOnly.FromDateTime(DateTime.Now);
+
             try
             {
                 await _dataContext.SaveChangesAsync();
@@ -84,6 +96,24 @@ namespace GKD.Data.Repositories
                 return false;
             }
 
+        }
+
+        public async Task<bool> UpdateEmailListAsync(int id, string email)
+        {
+            try
+            {
+                var userFile = await _dataContext._Files.FirstOrDefaultAsync(file => file.Id == id);
+                if (userFile == null) return false;
+                userFile.EmailAloowed.Add(email);
+                userFile.UpdateAt = DateOnly.FromDateTime(DateTime.Now);
+
+                await _dataContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         //DELETE

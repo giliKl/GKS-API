@@ -14,8 +14,8 @@ namespace GKS.Core.DTOS
         public string EncryptedLink { get; set; }
         public string FilePassword { get; set; }
         public string FileType { get; set; }
-
         public DateOnly CreatedAt { get; set; }
+        public DateOnly UpdateAt { get; set; }
         public bool IsActive { get; set; }
 
     }

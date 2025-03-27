@@ -1,9 +1,9 @@
-﻿using AutoMapper;
-using GKS.Core.DTOS;
+﻿using GKS.Core.DTOS;
+using GKS.Core.Entities;
 using GKS.Core.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+
 
 namespace GKS_API.Controllers
 {
@@ -12,16 +12,16 @@ namespace GKS_API.Controllers
     public class UserController : ControllerBase
     {
         readonly IUserService _userService;
-        readonly IMapper _mapper;
-        public UserController(IUserService userService, IMapper mapper)
+
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _mapper = mapper;
+
         }
 
         // GET
         [HttpGet]
-        //[Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsersAsync()
         {
             try
@@ -41,6 +41,7 @@ namespace GKS_API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<ActionResult<UserDto>> GetUserByIdAsync(int id)
         {
             try
@@ -60,6 +61,7 @@ namespace GKS_API.Controllers
         }
 
         [HttpGet("email")]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<ActionResult<UserDto>> GetUserByEmailAsync([FromQuery] string email)
         {
             try
@@ -80,7 +82,8 @@ namespace GKS_API.Controllers
 
 
         //PUT 
-        [HttpPut("{id}/enableuser")]
+        [HttpPut("enable/{id}")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<ActionResult> EnableUserAsync(int id)
         {
             try
@@ -98,7 +101,18 @@ namespace GKS_API.Controllers
             }
         }
 
+        [HttpPut("disable/{id}")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult<bool>> DisableUserAsync(int id)
+        {
+            var res = await _userService.DisableUserAsync(id);
+            if (!res)
+                return NotFound();
+            return Ok(res);
+        }
+
         [HttpPut("{id}/name")]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<ActionResult> UpDateNameAsync(int id, [FromBody] string name)
         {
             try
@@ -117,6 +131,7 @@ namespace GKS_API.Controllers
         }
 
         [HttpPut("{id}/password")]
+        [Authorize(Policy = "UserOrAdmin")]
         public async Task<ActionResult> UpdatePasswordAsync(int id, [FromBody] string password)
         {
             try
@@ -134,11 +149,18 @@ namespace GKS_API.Controllers
             }
         }
 
+        [HttpPut("{id}/updaterole")]
+        public async Task<bool> UpdateRoleAsync(int id,[FromBody] RoleDto role)
+        {
+            return await _userService.UpdateRoleAsync(id, role);
+        }
 
 
-        //DELETE api/<UserController>/5
+
+
+        //DELETE 
         [HttpDelete("{id}")]
-        //[Authorize(Policy = "EditorOrAdmin")]
+        [Authorize(Policy = "UserOnly")]
         public async Task<ActionResult> DeleteUserAsync(int id)
         {
             try

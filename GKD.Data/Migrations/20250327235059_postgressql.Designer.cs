@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GKD.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250316205713_fileType")]
-    partial class fileType
+    [Migration("20250327235059_postgressql")]
+    partial class postgressql
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -106,6 +106,36 @@ namespace GKD.Data.Migrations
                     b.ToTable("_Users");
                 });
 
+            modelBuilder.Entity("GKS.Core.Entities.UserActivityLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("FileId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FileId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("_UserActivityLogs");
+                });
+
             modelBuilder.Entity("GKS.Core.Entities.UserFile", b =>
                 {
                     b.Property<int>("Id")
@@ -116,6 +146,10 @@ namespace GKD.Data.Migrations
 
                     b.Property<DateOnly>("CreatedAt")
                         .HasColumnType("date");
+
+                    b.PrimitiveCollection<string[]>("EmailAloowed")
+                        .IsRequired()
+                        .HasColumnType("text[]");
 
                     b.Property<string>("EncryptedLink")
                         .IsRequired()
@@ -142,6 +176,9 @@ namespace GKD.Data.Migrations
 
                     b.Property<int>("OwnerId")
                         .HasColumnType("integer");
+
+                    b.Property<DateOnly>("UpdateAt")
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 
@@ -178,6 +215,23 @@ namespace GKD.Data.Migrations
                     b.HasIndex("UsersId");
 
                     b.ToTable("RoleUser");
+                });
+
+            modelBuilder.Entity("GKS.Core.Entities.UserActivityLog", b =>
+                {
+                    b.HasOne("GKS.Core.Entities.UserFile", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId");
+
+                    b.HasOne("GKS.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("File");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("GKS.Core.Entities.UserFile", b =>

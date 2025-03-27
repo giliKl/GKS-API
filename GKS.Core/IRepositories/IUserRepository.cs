@@ -22,6 +22,7 @@ namespace GKS.Core.IRepositories
 
         //Put
         public Task<bool> EnableUserAsync(int id);
+        public Task<bool> DisableUserAsync(int id);
         public Task<bool> UpdatePasswordAsync(int id, string password);
         public Task<bool> UpDateNameAsync(int id, string name);
         public Task<bool> UpdateRoleAsync(int id, Role role);

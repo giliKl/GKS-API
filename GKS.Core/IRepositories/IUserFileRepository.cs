@@ -16,12 +16,16 @@ namespace GKS.Core.IRepositories
         public Task<UserFile[]> GetUserFilesByUserIdAsync(int userId);
         public Task<bool> IsFileNameExistsAsync(int ownerId, string fileName);
         public Task<UserFile> GetFileByUrlAsync(string fileUrl);
+        public Task<List<UserFile>> GetFileshareByEmail(string email);
+        public Task<bool> CheckingIsAllowedEmailAsync(int id, string email);
+       
 
         //Post
         public Task<UserFile> AddFileAsync(UserFile file);
 
         //PUT
         public Task<bool> updateFileNameAsync(UserFile userFile);
+        public Task<bool> UpdateEmailListAsync(int id, string email);
 
 
         //DELETE

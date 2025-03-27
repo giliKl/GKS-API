@@ -109,6 +109,23 @@ namespace GKD.Data.Repositories
             }
         }
 
+        public async Task<bool> DisableUserAsync(int id)
+        {
+            try
+            {
+                var user = await _dataContext._Users.FindAsync(id);
+                if (user == null) return false;
+
+                user.IsActive = false;
+                await _dataContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> UpdateRoleAsync(int id, Role role)
         {
             try
@@ -178,7 +195,7 @@ namespace GKD.Data.Repositories
                 {
                     return false;
                 }
-                user.IsActive = false;
+                _dataContext._Users.Remove(user);
                 await _dataContext.SaveChangesAsync();
                 return true;
             }

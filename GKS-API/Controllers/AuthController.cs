@@ -11,47 +11,54 @@ namespace GKS_API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
         private readonly IAuthService _authService;
-        private readonly IMapper _mapper;
-        public AuthController(IConfiguration configuration, IUserService userService, IAuthService authService)
+
+        public AuthController(IUserService userService, IAuthService authService)
         {
-            _configuration = configuration;
             _userService = userService;
             _authService = authService;
         }
 
-
-        [HttpPost]
-        public async Task<ActionResult> Login([FromBody] LoginModel loginModel)
+        // 🔹 פונקציית התחברות
+        [HttpPost("login")]
+        public async Task<ActionResult> LoginAsync([FromBody] LoginModel loginModel)
         {
             if (!EmailValidator.IsValidEmail(loginModel.Email))
-            {
                 return BadRequest("Email Not valid");
-            }
-            var res = await _userService.LogInAsync(loginModel.Email, loginModel.Password);
-            if (res == null)
-                return NotFound();
-            if(res.IsActive==false)
-                return Unauthorized();
 
-            var token = _authService.GenerateJwtToken(res.Name, loginModel.Roles);
-                return Ok(new { Token = token, user = res });
-            
+            var user = await _userService.LogInAsync(loginModel.Email, loginModel.Password);
+            if (user == null)
+                return NotFound("User not found");
+
+            if (!user.IsActive)
+                return Unauthorized("User is not active");
+
+            var token = _authService.GenerateJwtToken(user.Name, loginModel.Roles);
+            return Ok(new { Token = token, User = user });
         }
 
-
+        // 🔹 פונקציית רישום משתמש חדש
         [HttpPost("register")]
-        public async Task<ActionResult> Register([FromBody] RegisterPostModel user)
+        public async Task<ActionResult> RegisterAsync([FromBody] RegisterPostModel userModel)
         {
-            var res = await _userService.AddUserAsync(user.User, user.Roles);
-            if (res == null)
-                return BadRequest();
-            
-                var token = _authService.GenerateJwtToken(res.Name, user.Roles);
-                return Ok(new { Token = token, user = res });
-          
+            var user = await _userService.AddUserAsync(userModel.User, userModel.Roles);
+            if (user == null)
+                return BadRequest("User registration failed");
+
+            var token = _authService.GenerateJwtToken(user.Name, userModel.Roles);
+            return Ok(new { Token = token, User = user });
+        }
+
+        // 🔹 פונקציה לרענון טוקן אם הוא פג תוקף
+        [HttpPost("refresh-token")]
+        public ActionResult RefreshToken([FromBody] string token)
+        {
+            var newToken = _authService.RefreshToken(token);
+            if (newToken == null)
+                return Unauthorized("Token is still valid or invalid");
+
+            return Ok(new { Token = newToken });
         }
 
 

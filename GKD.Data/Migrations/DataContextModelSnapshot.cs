@@ -144,6 +144,10 @@ namespace GKD.Data.Migrations
                     b.Property<DateOnly>("CreatedAt")
                         .HasColumnType("date");
 
+                    b.PrimitiveCollection<string[]>("EmailAloowed")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<string>("EncryptedLink")
                         .IsRequired()
                         .HasColumnType("text");
@@ -169,6 +173,9 @@ namespace GKD.Data.Migrations
 
                     b.Property<int>("OwnerId")
                         .HasColumnType("integer");
+
+                    b.Property<DateOnly>("UpdateAt")
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 
