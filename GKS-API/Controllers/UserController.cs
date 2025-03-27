@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using GKS.Core.DTOS;
+using GKS.Core.Entities;
+using GKS.Core.IServices;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace GKS_API.Controllers
 {
@@ -8,36 +11,171 @@ namespace GKS_API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        // GET: api/<UserController>
+        readonly IUserService _userService;
+
+        public UserController(IUserService userService)
+        {
+            _userService = userService;
+
+        }
+
+        // GET
         [HttpGet]
-        public IEnumerable<string> Get()
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsersAsync()
         {
-            return new string[] { "value1", "value2" };
+            try
+            {
+                var users = await _userService.GetAllUsersAsync();
+
+                if (users == null || !users.Any())
+                {
+                    return NotFound("No users found.");
+                }
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        // GET api/<UserController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        [Authorize(Policy = "UserOrAdmin")]
+        public async Task<ActionResult<UserDto>> GetUserByIdAsync(int id)
         {
-            return "value";
+            try
+            {
+                var user = await _userService.GetUserByIdAsync(id);
+
+                if (user == null)
+                {
+                    return Unauthorized("Invalid credentials.");
+                }
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        // POST api/<UserController>
-        [HttpPost]
-        public void Post([FromBody]string value)
+        [HttpGet("email")]
+        [Authorize(Policy = "UserOrAdmin")]
+        public async Task<ActionResult<UserDto>> GetUserByEmailAsync([FromQuery] string email)
         {
+            try
+            {
+                var user = await _userService.GetUserByEmailAsync(email);
+
+                if (user == null)
+                {
+                    return Unauthorized("Invalid credentials.");
+                }
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        // PUT api/<UserController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+
+        //PUT 
+        [HttpPut("enable/{id}")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult> EnableUserAsync(int id)
         {
+            try
+            {
+                var enabled = await _userService.EnableUserAsync(id);
+                if (!enabled)
+                {
+                    return NotFound("User not found.");
+                }
+                return NoContent(); // Success with no content to return
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
-        // DELETE api/<UserController>/5
+        [HttpPut("disable/{id}")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<ActionResult<bool>> DisableUserAsync(int id)
+        {
+            var res = await _userService.DisableUserAsync(id);
+            if (!res)
+                return NotFound();
+            return Ok(res);
+        }
+
+        [HttpPut("{id}/name")]
+        [Authorize(Policy = "UserOrAdmin")]
+        public async Task<ActionResult> UpDateNameAsync(int id, [FromBody] string name)
+        {
+            try
+            {
+                var updated = await _userService.UpDateNameAsync(id, name);
+                if (!updated)
+                {
+                    return NotFound("User not found.");
+                }
+                return NoContent(); // Success with no content to return
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{id}/password")]
+        [Authorize(Policy = "UserOrAdmin")]
+        public async Task<ActionResult> UpdatePasswordAsync(int id, [FromBody] string password)
+        {
+            try
+            {
+                var updated = await _userService.UpdatePasswordAsync(id, password);
+                if (!updated)
+                {
+                    return NotFound("User not found.");
+                }
+                return NoContent(); // Success with no content to return
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{id}/updaterole")]
+        public async Task<bool> UpdateRoleAsync(int id,[FromBody] RoleDto role)
+        {
+            return await _userService.UpdateRoleAsync(id, role);
+        }
+
+
+
+
+        //DELETE 
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        [Authorize(Policy = "UserOnly")]
+        public async Task<ActionResult> DeleteUserAsync(int id)
         {
+            try
+            {
+                var deleted = await _userService.DeleteUserAsync(id);
+                if (!deleted)
+                {
+                    return NotFound("User not found.");
+                }
+                return NoContent(); 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

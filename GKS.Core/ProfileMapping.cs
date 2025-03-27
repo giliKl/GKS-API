@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 
 namespace GKS.Core
 {
-    public class ProfileMapping : Profile
+    public class ProfileMapping:Profile
     {
         public ProfileMapping()
         {
             CreateMap<User, UserDto>().ReverseMap();
             CreateMap<UserFile, UserFileDto>().ReverseMap();
-
+            CreateMap<Permission, PermissionDto>().ReverseMap();
+            CreateMap<Role, RoleDto>().ReverseMap();
         }
     }
 }

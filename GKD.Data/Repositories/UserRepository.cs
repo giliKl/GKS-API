@@ -16,10 +16,194 @@ namespace GKD.Data.Repositories
         {
             _dataContext = dataContext;
         }
-        public async Task<IEnumerable<User>> GetAllUsersAsync() { return await _dataContext._Users.ToListAsync(); }
-        public async Task<User> GetUserByEmailAsync(string email) { return await _dataContext._Users.FirstOrDefaultAsync(user => user.Email == email); }
-        public async Task<User> GetUserByIdAsync(int id) { return await _dataContext._Users.FirstOrDefaultAsync(user => user.Id == id); }
-        public async Task<User> AddUserAsync(User user) { await _dataContext._Users.AddAsync(user); await _dataContext.SaveChangesAsync(); return user; }
 
+
+        //Get
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            try
+            {
+                return await _dataContext._Users.Include(r => r.Roles).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetAllUsersAsync: {ex.Message}");
+                return new List<User>(); // מחזיר רשימה ריקה במקרה של שגיאה
+            }
+        }
+
+        public async Task<User> GetUserByEmailAsync(string email)
+        {
+            try
+            {
+                return await _dataContext._Users.FirstOrDefaultAsync(user => user.Email == email);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetUserByEmailAsync: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<User> GetUserByIdAsync(int id)
+        {
+            try
+            {
+                return await _dataContext._Users.FirstOrDefaultAsync(user => user.Id == id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetUserByIdAsync: {ex.Message}");
+                return null;
+            }
+        }
+
+        //Post
+        public async Task<User> AddUserAsync(User user)
+        {
+            try
+            {
+                await _dataContext._Users.AddAsync(user);
+                await _dataContext.SaveChangesAsync();
+                return user;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in AddUserAsync: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<User> LogInAsync(string email, string password)
+        {
+            try
+            {
+                return await _dataContext._Users.FirstOrDefaultAsync(user => user.Email == email && user.Password == password);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in LogInAsync: {ex.Message}");
+                return null;
+            }
+        }
+
+
+        //Put
+        public async Task<bool> EnableUserAsync(int id)
+        {
+            try
+            {
+                var user = await _dataContext._Users.FirstOrDefaultAsync(user => user.Id == id);
+                if (user == null)
+                {
+                    return false;
+                }
+                user.IsActive = true;
+                await _dataContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in EnableUserAsync: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DisableUserAsync(int id)
+        {
+            try
+            {
+                var user = await _dataContext._Users.FindAsync(id);
+                if (user == null) return false;
+
+                user.IsActive = false;
+                await _dataContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateRoleAsync(int id, Role role)
+        {
+            try
+            {
+                var user = await _dataContext._Users.FirstOrDefaultAsync(user => user.Id == id);
+                if (user == null)
+                    return false;
+                user.Roles.Add(role);
+                await _dataContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdatePasswordAsync(int id, string password)
+        {
+            try
+            {
+                var user = await _dataContext._Users.FirstOrDefaultAsync(user => user.Id == id);
+                if (user == null) // בודק אם המשתמש נמצא
+                {
+                    return false;
+                }
+
+                user.Password = password; // מעדכן את הסיסמה
+                await _dataContext.SaveChangesAsync(); // שומר את השינויים במסד הנתונים
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdatePasswordAsync: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpDateNameAsync(int id, string name)
+        {
+            try
+            {
+                var user = await _dataContext._Users.FirstOrDefaultAsync(user => user.Id == id);
+                if (user == null)
+                {
+                    return false;
+                }
+                user.Name = name;
+                await _dataContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdatePasswordAsync: {ex.Message}");
+                return false;
+            }
+        }
+
+        //Delete
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            try
+            {
+                var user = await _dataContext._Users.FirstOrDefaultAsync(user => user.Id == id);
+                if (user == null)
+                {
+                    return false;
+                }
+                _dataContext._Users.Remove(user);
+                await _dataContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in DeleteUserAsync: {ex.Message}");
+                return false;
+            }
+        }
     }
 }
