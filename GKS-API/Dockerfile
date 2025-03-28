@@ -18,6 +18,7 @@ COPY ["GKS-API/GKS-API.csproj", "GKS-API/"]
 COPY ["GKD.Data/GKD.Data.csproj", "GKD.Data/"]
 COPY ["GKS.Core/GKS.Core.csproj", "GKS.Core/"]
 COPY ["GKS.Service/GKS.Service.csproj", "GKS.Service/"]
+USER root
 RUN dotnet restore "./GKS-API/GKS-API.csproj"
 COPY . .
 WORKDIR "/src/GKS-API"
