@@ -14,7 +14,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7009;http://localhost:3000"
+      "applicationUrl": "https://gks-api.onrender.com;http://localhost:3000"
     },
     "Container (Dockerfile)": {
       "commandName": "Docker",
