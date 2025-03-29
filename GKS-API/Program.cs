@@ -22,10 +22,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFileService, UserFileService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IRoleService,RoleService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IPermissionService,PermissionService>();
-builder.Services.AddScoped<IUserActivityService,UserActivityService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<IUserActivityService, UserActivityService>();
 builder.Services.AddScoped<FileStorageService>();
 
 
@@ -57,7 +57,7 @@ builder.Services.AddCors(options =>
         builder.AllowAnyOrigin()  // מאפשר לכל מקור לגשת
                .AllowAnyMethod()  // מאפשר כל שיטה (GET, POST וכו')
                .AllowAnyHeader();
-                                      
+
 
         // מאפשר כל כותרת
     });
@@ -103,7 +103,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 //mapper
-builder.Services.AddAutoMapper(typeof(ProfileMapping),typeof(PostModelProfileMapping));
+builder.Services.AddAutoMapper(typeof(ProfileMapping), typeof(PostModelProfileMapping));
 
 //JWT
 builder.Services.AddAuthentication(options =>
@@ -141,6 +141,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
 
 app.UseCors("AllowAll");
 
