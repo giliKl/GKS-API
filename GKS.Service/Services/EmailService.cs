@@ -33,7 +33,7 @@ namespace GKS.Service.Services
             {
                 try
                 {
-                    await client.ConnectAsync(configuration["SMTP_SERVER"], int.Parse(configuration["PORT"]), SecureSocketOptions.StartTls);
+                    await client.ConnectAsync(configuration["SMTP_SERVER"], int.Parse(configuration["SMTP_PORT"]), SecureSocketOptions.StartTls);
                     await client.AuthenticateAsync(configuration["GOOGLE_USER_EMAIL"], configuration["PASSWORD"]);
                     await client.SendAsync(emailMessage);
                     await client.DisconnectAsync(true);
