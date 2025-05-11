@@ -6,7 +6,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>GKS_API</RootNamespace>
 		<UserSecretsId>7c91b3f8-278a-4d35-8b8a-e560e1c354f2</UserSecretsId>
-		<DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -32,7 +33,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\GKD.Data\GKD.Data.csproj" />
+		<ProjectReference Include="..\GKS.Data\GKS.Data.csproj" />
 		<ProjectReference Include="..\GKS.Core\GKS.Core.csproj" />
 		<ProjectReference Include="..\GKS.Service\GKS.Service.csproj" />
 	</ItemGroup>

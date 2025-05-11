@@ -162,11 +162,7 @@ namespace GKS.Service.Services
 
         public async Task<SharingFileDto> SharingFileAsync(int id, string email)
         {
-            var user = await _userService.GetUserByEmailAsync(email);
-            if (user == null)
-            {
-                return null;
-            }
+       
             var userFile = await _userFileRepository.GetFileByIdAsync(id);
             if (userFile == null) { return null; }
             await _userFileRepository.UpdateEmailListAsync(id, email);

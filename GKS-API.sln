@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35825.156 d17.13
+VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GKS-API", "GKS-API\GKS-API.csproj", "{DE89A628-444D-4098-A617-D1A0D1EE2174}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GKS.Core", "GKS.Core\GKS.Core.csproj", "{0CC464A8-06D1-4C7D-A7E7-99F100F80EE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GKD.Data", "GKD.Data\GKD.Data.csproj", "{3E84C2E3-9907-4BA6-B3E8-FF4A2DA17D91}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GKS.Data", "GKD.Data\GKS.Data.csproj", "{3E84C2E3-9907-4BA6-B3E8-FF4A2DA17D91}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GKS.Service", "GKS.Service\GKS.Service.csproj", "{EC6DF97C-355B-46C0-ABA0-785D5DAA6950}"
 EndProject
