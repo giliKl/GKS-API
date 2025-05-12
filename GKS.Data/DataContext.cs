@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GKD.Data
+namespace GKS.Data
 {
     public class DataContext : DbContext, IDataContext
     {

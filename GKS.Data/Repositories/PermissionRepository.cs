@@ -4,13 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GKD.Data.Repositories
+namespace GKS.Data.Repositories
 {
-    public class PermissionRepository: IPermissionRepository
+    public class PermissionRepository : IPermissionRepository
     {
         readonly IDataContext _dataContext;
         public PermissionRepository(IDataContext dataContext)

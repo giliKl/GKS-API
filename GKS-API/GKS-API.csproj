@@ -24,7 +24,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.2" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
-		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0-preview.3.efcore.9.0.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="7.3.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.3.1" />
@@ -33,9 +33,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\GKS.Data\GKS.Data.csproj" />
-		<ProjectReference Include="..\GKS.Core\GKS.Core.csproj" />
-		<ProjectReference Include="..\GKS.Service\GKS.Service.csproj" />
+	  <ProjectReference Include="..\GKS.Core\GKS.Core.csproj" />
+	  <ProjectReference Include="..\GKS.Data\GKS.Data.csproj" />
+	  <ProjectReference Include="..\GKS.Service\GKS.Service.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GKD.Data.Repositories
+namespace GKS.Data.Repositories
 {
     public class UserActivityRepository : IUserActivityRepository
     {
@@ -66,4 +66,3 @@ namespace GKD.Data.Repositories
         }
     }
 }
-

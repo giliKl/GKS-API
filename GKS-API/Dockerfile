@@ -13,8 +13,8 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["GKS-API/GKS-API.csproj", "GKS-API/"]
-COPY ["GKS.Data/GKS.Data.csproj", "GKS.Data/"]
 COPY ["GKS.Core/GKS.Core.csproj", "GKS.Core/"]
+COPY ["GKS.Data/GKS.Data.csproj", "GKS.Data/"]
 COPY ["GKS.Service/GKS.Service.csproj", "GKS.Service/"]
 RUN dotnet restore "./GKS-API/GKS-API.csproj"
 COPY . .

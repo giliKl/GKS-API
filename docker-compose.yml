@@ -1,6 +1,0 @@
-services:
-  gks-api:
-    image: ${DOCKER_REGISTRY-}gksapi
-    build:
-      context: .
-      dockerfile: GKS-API\Dockerfile

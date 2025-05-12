@@ -1,9 +1,9 @@
 using DotNetEnv;
-using GKD.Data;
-using GKD.Data.Repositories;
 using GKS.Core;
 using GKS.Core.IRepositories;
 using GKS.Core.IServices;
+using GKS.Data;
+using GKS.Data.Repositories;
 using GKS.Service;
 using GKS.Service.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
