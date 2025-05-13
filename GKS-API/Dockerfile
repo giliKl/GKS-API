@@ -1,33 +1,34 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
+# syntax=docker/dockerfile:1
+
+# שלב הבנייה
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
+
+WORKDIR /source
+
+COPY . . 
+
+WORKDIR /source/GKS-API
+
+ARG TARGETARCH
+
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet publish -c Release -a ${TARGETARCH/amd64/x64} --use-current-runtime --self-contained false -o /app
+
+# שלב ההרצה
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS final
+
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
 
+COPY --from=build /app .
 
-# This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["GKS-API/GKS-API.csproj", "GKS-API/"]
-COPY ["GKS.Core/GKS.Core.csproj", "GKS.Core/"]
-COPY ["GKS.Data/GKS.Data.csproj", "GKS.Data/"]
-COPY ["GKS.Service/GKS.Service.csproj", "GKS.Service/"]
-RUN dotnet restore "./GKS-API/GKS-API.csproj"
-COPY . .
-WORKDIR "/src/GKS-API"
-RUN dotnet build "./GKS-API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+# יצירת משתמש לא-שורש
+RUN adduser -D appuser
+USER appuser
 
-# This stage is used to publish the service project to be copied to the final stage
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./GKS-API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+# חשיפת הפורט והגדרת ASPNETCORE_URLS ל-HTTP על פורט 80
+ENV ASPNETCORE_URLS=http://+:80
+EXPOSE 80
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
+# קביעת הפקודה להרצה
 ENTRYPOINT ["dotnet", "GKS-API.dll"]
