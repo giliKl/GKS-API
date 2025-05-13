@@ -52,7 +52,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddPolicy("AllowAllOrigins", builder =>
     {
         builder.AllowAnyOrigin()  // מאפשר לכל מקור לגשת
                .AllowAnyMethod()  // מאפשר כל שיטה (GET, POST וכו')
