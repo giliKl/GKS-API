@@ -3,6 +3,7 @@ using GKS.Core.DTOS;
 using GKS.Core.Entities;
 using GKS.Core.IRepositories;
 using GKS.Core.IServices;
+using GKS.Service.Shared;
 
 namespace GKS.Service.Services
 {
@@ -49,7 +50,7 @@ namespace GKS.Service.Services
 
             if (existingUser != null)
             {
-                throw new Exception("Email already exists");
+                throw new EmailAlreadyExistsException(user.Email);
             }
 
             var res = await _userRepository.AddUserAsync(_mapper.Map<User>(user));
@@ -61,8 +62,12 @@ namespace GKS.Service.Services
                 }
                 await _userActivityRepository.LogActivityAsync(res.Id, "Register");
             }
+            else
+            {
+                throw new Exception("User registration failed");
+            }
 
-            return _mapper.Map<UserDto>(res);
+                return _mapper.Map<UserDto>(res);
         }
 
         public async Task<UserDto> LogInAsync(string email, string password)

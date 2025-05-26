@@ -15,6 +15,7 @@
           "GKS.Core": "1.0.0",
           "GKS.Data": "1.0.0",
           "GKS.Service": "1.0.0",
+          "MailKit": "4.11.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "9.0.0",
           "Microsoft.AspNetCore.Cors": "2.3.0",
           "Microsoft.AspNetCore.OpenApi": "9.0.2",

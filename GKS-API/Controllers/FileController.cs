@@ -78,13 +78,17 @@ namespace GKS_API.Controllers
             if (file == null)
                 return NotFound("File not found.");
 
+            bool isAllowed = await _fileService.CheckingIsAllowedViewAsync(email, sharingFileDto);
+            if (!isAllowed)
+                return Unauthorized("You are not allowed to view this file.");
+
             sharingFileDto.Password = file.FilePassword;
+
             var result = await _fileService.GetDecryptFileAsync(sharingFileDto);
             if (result == null)
                 return NotFound("File not found.");
 
             return File(result.FileContents, result.ContentType, result.FileDownloadName);
-
         }
 
 

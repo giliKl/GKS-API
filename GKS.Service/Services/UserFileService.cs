@@ -56,16 +56,37 @@ namespace GKS.Service.Services
         }
         public async Task<bool> CheckingIsAllowedViewAsync(string email, SharingFileDto sharingFile)
         {
-            string decryptionpassword = DecryptLinkOrPassword(sharingFile.Password, _encryptionKey);
-            string[] arr = decryptionpassword.Split(',');
-            var userFile = await _userFileRepository.GetFileByIdAsync(sharingFile.Id);
-            if (arr[0] != userFile.Id.ToString() || arr[1] != email)
+            try
             {
+                var userFile = await _userFileRepository.GetFileByIdAsync(sharingFile.Id);
+                if (userFile == null)
+                    return false;
+
+                // אם זו סיסמה מוצפנת - מפענחים ומשווים ל-id ו-email
+                if (IsBase64String(sharingFile.Password))
+                {
+                    string decrypted = DecryptLinkOrPassword(sharingFile.Password, _encryptionKey);
+                    string[] arr = decrypted.Split(',');
+                    if (arr.Length != 2 || arr[0] != userFile.Id.ToString() || arr[1] != email)
+                        return false;
+                }
+                else
+                {
+                    // השוואה ישירה לסיסמה הרגילה
+                    if (sharingFile.Password != userFile.FilePassword)
+                        return false;
+                }
+
+                return await _userFileRepository.CheckingIsAllowedEmailAsync(userFile.Id, email);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in CheckingIsAllowedViewAsync: " + ex.Message);
                 return false;
             }
-
-            return await _userFileRepository.CheckingIsAllowedEmailAsync(userFile.Id, email);
         }
+
+
 
         //Post
         public async Task<FileContentResult> GetDecryptFileAsync(SharingFileDto decryption)
@@ -271,6 +292,15 @@ namespace GKS.Service.Services
                 }
             }
         }
+        private bool IsBase64String(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return false;
+
+            Span<byte> buffer = new Span<byte>(new byte[input.Length]);
+            return Convert.TryFromBase64String(input, buffer, out _);
+        }
+
 
 
     }

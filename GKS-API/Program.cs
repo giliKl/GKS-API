@@ -6,6 +6,7 @@ using GKS.Data;
 using GKS.Data.Repositories;
 using GKS.Service;
 using GKS.Service.Services;
+using GKS_API;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -145,6 +146,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAllOrigins");
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseAuthentication();
 

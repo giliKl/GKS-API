@@ -2,7 +2,9 @@
 using GKS.Core.IServices;
 using GKS.Service;
 using GKS.Service.Post_Model;
+using GKS.Service.Shared;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace GKS_API.Controllers
@@ -25,29 +27,50 @@ namespace GKS_API.Controllers
         public async Task<ActionResult> LoginAsync([FromBody] LoginModel loginModel)
         {
             if (!EmailValidator.IsValidEmail(loginModel.Email))
-                return BadRequest("Email Not valid");
+                return BadRequest(new { success = false, error = "Email Not valid" });
 
-            var user = await _userService.LogInAsync(loginModel.Email, loginModel.Password);
+            var user = await _userService.GetUserByEmailAsync(loginModel.Email);
             if (user == null)
-                return NotFound("User not found");
+                return Unauthorized(new { success = false, error = "Invalid credentials" });
 
             if (!user.IsActive)
-                return Unauthorized("User is not active");
+                return Unauthorized(new { success = false, error = "User is not active" });
 
             var token = _authService.GenerateJwtToken(user.Name, loginModel.Roles);
-            return Ok(new { Token = token, User = user });
+
+            return Ok(new
+            {
+                success = true,
+                Token = token,
+                User= user 
+            });
         }
 
         // 🔹 פונקציית רישום משתמש חדש
         [HttpPost("register")]
         public async Task<ActionResult> RegisterAsync([FromBody] RegisterPostModel userModel)
         {
-            var user = await _userService.AddUserAsync(userModel.User, userModel.Roles);
-            if (user == null)
-                return BadRequest("User registration failed");
+            try
+            {
+                var user = await _userService.AddUserAsync(userModel.User, userModel.Roles);
+                if (user == null)
+                    return BadRequest(new { error = "User registration failed" });
 
-            var token = _authService.GenerateJwtToken(user.Name, userModel.Roles);
-            return Ok(new { Token = token, User = user });
+                var token = _authService.GenerateJwtToken(user.Name, userModel.Roles);
+                return Ok(new { Token = token, User = user });
+            }
+            catch (EmailAlreadyExistsException ex)
+            {
+                return Conflict(new { error = $"Email '{userModel.User.Email}' is already in use" });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An unexpected error occurred", detail = ex.Message });
+            }
         }
 
         // 🔹 פונקציה לרענון טוקן אם הוא פג תוקף
